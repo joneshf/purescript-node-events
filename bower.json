@@ -1,6 +1,6 @@
 {
   "name": "purescript-node-events",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "PureScript bindings to node Events.",
   "license": "MIT"
 }
