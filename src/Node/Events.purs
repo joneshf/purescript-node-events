@@ -1,7 +1,8 @@
 module Node.Events
-  {-( Event(..)
+  ( Event(..)
   , EventEff()
   , EventEmitter
+  , Variadic
   , addListener
   , listeners
   , on
@@ -9,7 +10,7 @@ module Node.Events
   , removeAllListeners
   , removeListener
   , setMaxListeners
-  ) -}where
+  ) where
 
   import Control.Monad.Eff (returnE, Eff())
 

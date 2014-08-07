@@ -46,10 +46,6 @@
 
     addListener :: forall eff e fn. (EventEmitter e, Variadic fn (Eff eff Unit)) => Event -> fn -> e -> Eff (event :: EventEff | eff) e
 
-    emitterHelper1 :: forall eff e a b. (EventEmitter e) => String -> a -> e -> Eff (event :: EventEff | eff) b
-
-    emitterHelper2 :: forall eff e fn. (EventEmitter e, Variadic fn (Eff eff Unit)) => String -> Event -> fn -> e -> Eff (event :: EventEff | eff) e
-
     listeners :: forall eff e. (EventEmitter e) => Event -> e -> Eff (event :: EventEff | eff) [Event]
 
     on :: forall eff e fn. (EventEmitter e, Variadic fn (Eff eff Unit)) => Event -> fn -> e -> Eff (event :: EventEff | eff) e
