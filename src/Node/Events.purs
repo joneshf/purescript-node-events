@@ -68,12 +68,14 @@ module Node.Events
         -> Eff (event :: EventEff | eff) b
 
   foreign import emitterHelper2
-    "function emitterHelper2(__dict) {\
-    \  return function(method) {\
-    \    return function(event) {\
-    \      return function(cb) {\
-    \        return function(emitter) {\
-    \          return returnE_(emitter[method](event, cb));\
+    "function emitterHelper2(__emitter) {\
+    \  return function(__variadic) {\
+    \    return function(method) {\
+    \      return function(event) {\
+    \        return function(cb) {\
+    \          return function(emitter) {\
+    \            return returnE_(emitter[method](event, cb));\
+    \          }\
     \        }\
     \      }\
     \    }\
