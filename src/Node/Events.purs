@@ -1,8 +1,12 @@
 module Node.Events
-  ( Event(..)
+  ( Emitter()
+  , Event(..)
   , EventEff()
   , EventEmitter
   , Variadic
+  -- Creating listeners.
+  , emitter
+  -- Manipulating listeners.
   , addListener
   , listeners
   , on
@@ -10,6 +14,9 @@ module Node.Events
   , removeAllListeners
   , removeListener
   , setMaxListeners
+  -- Default listeners.
+  , newListenerEvent
+  , removeListenerEvent
   ) where
 
   import Control.Monad.Eff (returnE, Eff())
@@ -32,31 +39,47 @@ module Node.Events
 
   class EventEmitter e
 
+  instance eventEmitterEmitter :: EventEmitter Emitter
+
   class Variadic func ret
 
-  instance variadicFn0  :: Variadic (Fn0  a) a
-  instance variadicFn1  :: Variadic (Fn1  a b) b
-  instance variadicFn2  :: Variadic (Fn2  a b c) c
-  instance variadicFn3  :: Variadic (Fn3  a b c d) d
-  instance variadicFn4  :: Variadic (Fn4  a b c d e) e
-  instance variadicFn5  :: Variadic (Fn5  a b c d e f) f
-  instance variadicFn6  :: Variadic (Fn6  a b c d e f g) g
-  instance variadicFn7  :: Variadic (Fn7  a b c d e f g h) h
-  instance variadicFn8  :: Variadic (Fn8  a b c d e f g h i) i
-  instance variadicFn9  :: Variadic (Fn9  a b c d e f g h i j) j
-  instance variadicFn10 :: Variadic (Fn10 a b c d e f g h i j k) k
+  instance variadicArr  :: Variadic (a -> b) c
+  instance variadicFn0  :: Variadic (Fn0  a) b
+  instance variadicFn1  :: Variadic (Fn1  a b) c
+  instance variadicFn2  :: Variadic (Fn2  a b c) d
+  instance variadicFn3  :: Variadic (Fn3  a b c d) e
+  instance variadicFn4  :: Variadic (Fn4  a b c d e) f
+  instance variadicFn5  :: Variadic (Fn5  a b c d e f) g
+  instance variadicFn6  :: Variadic (Fn6  a b c d e f g) h
+  instance variadicFn7  :: Variadic (Fn7  a b c d e f g h) i
+  instance variadicFn8  :: Variadic (Fn8  a b c d e f g h i) j
+  instance variadicFn9  :: Variadic (Fn9  a b c d e f g h i j) k
+  instance variadicFn10 :: Variadic (Fn10 a b c d e f g h i j k) l
 
   newtype Event = Event String
 
-  -- ffi helper
-  returnE_ = returnE
+  newListenerEvent :: Event
+  newListenerEvent = Event "newListener"
+
+  removeListenerEvent :: Event
+  removeListenerEvent = Event "removeListener"
+
+  foreign import data Emitter :: *
+
+  foreign import emitter
+    "function emitter () {\
+    \  var EE = require('events').EventEmitter;\
+    \  return new EE()\
+    \}" :: forall eff. Eff (event :: EventEff | eff) Emitter
 
   foreign import emitterHelper1
     "function emitterHelper1(__dict) {\
     \  return function(method) {\
     \    return function(event) {\
     \      return function(emitter) {\
-    \        return returnE_(emitter[method](event));\
+    \        return function() {\
+    \          return emitter[method](event);\
+    \        }\
     \      }\
     \    }\
     \  }\
@@ -74,7 +97,11 @@ module Node.Events
     \      return function(event) {\
     \        return function(cb) {\
     \          return function(emitter) {\
-    \            return returnE_(emitter[method](event, cb));\
+    \            return function() {\
+    \              return emitter[method](event, function() {\
+    \                return cb.apply(this, arguments)();\
+    \              }.bind(this));\
+    \            }\
     \          }\
     \        }\
     \      }\
