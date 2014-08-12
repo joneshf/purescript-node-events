@@ -14,6 +14,8 @@ module Node.Events
   , removeAllListeners
   , removeListener
   , setMaxListeners
+  -- Emitting events.
+  , emit
   -- Default listeners.
   , newListenerEvent
   , removeListenerEvent
@@ -142,3 +144,17 @@ module Node.Events
   listeners :: forall eff e. (EventEmitter e)
             => Event -> e -> Eff (event :: EventEff | eff) [Event]
   listeners = emitterHelper1 "listeners"
+
+  foreign import emit
+    "function emit(__dict) {\
+    \  return function(event) {\
+    \    return function(arg) {\
+    \      return function(emitter) {\
+    \        return function() {\
+    \          return emitter.emit(event, arg);\
+    \        }\
+    \      }\
+    \    }\
+    \  }\
+    \}" :: forall eff e arg. (EventEmitter e)
+        => Event -> arg -> e -> Eff (event :: EventEff | eff) Boolean

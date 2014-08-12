@@ -1,7 +1,8 @@
 'use strict'
 
-var gulp       = require('gulp')
-  , purescript = require('gulp-purescript')
+var gulp        = require('gulp')
+  , taskListing = require('gulp-task-listing')
+  , purescript  = require('gulp-purescript')
   ;
 
 var paths = {
@@ -56,5 +57,7 @@ gulp.task('watch-browser', function() {
 gulp.task('watch-make', function() {
     gulp.watch(paths.src, ['make', 'docs']);
 });
+
+gulp.task('help', taskListing);
 
 gulp.task('default', ['make', 'docs']);
