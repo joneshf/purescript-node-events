@@ -1,7 +1,5 @@
 module Node.Events
   ( Emitter()
-  , Event(..)
-  , EventEff()
   , EventEmitter
   , Variadic
   -- Creating listeners.
@@ -21,6 +19,7 @@ module Node.Events
   , removeListenerEvent
   ) where
 
+  import Control.Events (Event(..), EventEff())
   import Control.Monad.Eff (returnE, Eff())
 
   import Data.Function
@@ -36,8 +35,6 @@ module Node.Events
     , Fn9()
     , Fn10()
     )
-
-  foreign import data EventEff :: !
 
   class EventEmitter e
 
@@ -57,8 +54,6 @@ module Node.Events
   instance variadicFn8  :: Variadic (Fn8  a b c d e f g h i) j
   instance variadicFn9  :: Variadic (Fn9  a b c d e f g h i j) k
   instance variadicFn10 :: Variadic (Fn10 a b c d e f g h i j k) l
-
-  newtype Event = Event String
 
   newListenerEvent :: Event
   newListenerEvent = Event "newListener"

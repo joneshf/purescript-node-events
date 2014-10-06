@@ -6,11 +6,6 @@
 
     data Emitter :: *
 
-    newtype Event where
-      Event :: String -> Event
-
-    data EventEff :: !
-
 
 ### Type Classes
 
@@ -51,6 +46,8 @@
 ### Values
 
     addListener :: forall eff e fn. (EventEmitter e, Variadic fn (Eff eff Unit)) => Event -> fn -> e -> Eff (event :: EventEff | eff) e
+
+    emit :: forall eff e arg. (EventEmitter e) => Event -> arg -> e -> Eff (event :: EventEff | eff) Boolean
 
     emitter :: forall eff. Eff (event :: EventEff | eff) Emitter
 
