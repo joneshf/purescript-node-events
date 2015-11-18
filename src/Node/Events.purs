@@ -18,7 +18,8 @@ module Node.Events
   ) where
 
   import Control.Events (Event(..), EventEff(), EventEmitter, Variadic)
-  import Control.Monad.Eff (returnE, Eff())
+  import Control.Monad.Eff (Eff())
+  import Prelude (Unit())
 
   instance eventEmitterEmitter :: EventEmitter Emitter
 
@@ -30,48 +31,16 @@ module Node.Events
 
   foreign import data Emitter :: *
 
-  foreign import emitter
-    "function emitter () {\
-    \  var EE = require('events').EventEmitter;\
-    \  return new EE()\
-    \}" :: forall eff. Eff (event :: EventEff | eff) Emitter
+  foreign import emitter :: forall eff. Eff (event :: EventEff | eff) Emitter
 
-  foreign import emitterHelper1
-    "function emitterHelper1(__dict) {\
-    \  return function(method) {\
-    \    return function(event) {\
-    \      return function(emitter) {\
-    \        return function() {\
-    \          return emitter[method](event);\
-    \        }\
-    \      }\
-    \    }\
-    \  }\
-    \}" :: forall eff e a b
+  foreign import emitterHelper1 :: forall eff e a b
         .  (EventEmitter e)
         => String
         -> a
         -> e
         -> Eff (event :: EventEff | eff) b
 
-  foreign import emitterHelper2
-    "function emitterHelper2(__emitter) {\
-    \  return function(__variadic) {\
-    \    return function(method) {\
-    \      return function(event) {\
-    \        return function(cb) {\
-    \          return function(emitter) {\
-    \            return function() {\
-    \              return emitter[method](event, function() {\
-    \                return cb.apply(this, arguments)();\
-    \              }.bind(this));\
-    \            }\
-    \          }\
-    \        }\
-    \      }\
-    \    }\
-    \  }\
-    \}" :: forall eff e fn
+  foreign import emitterHelper2 :: forall eff e fn
         .  (EventEmitter e, Variadic fn (Eff eff Unit))
         => String
         -> Event
@@ -96,7 +65,7 @@ module Node.Events
   removeListener = emitterHelper2 "removeListener"
 
   removeAllListeners :: forall eff e. (EventEmitter e)
-                     => [Event] -> e -> Eff (event :: EventEff | eff) e
+                     => Array Event -> e -> Eff (event :: EventEff | eff) e
   removeAllListeners = emitterHelper1 "removeAllListeners"
 
   setMaxListeners :: forall eff e. (EventEmitter e)
@@ -104,19 +73,8 @@ module Node.Events
   setMaxListeners = emitterHelper1 "setMaxListeners"
 
   listeners :: forall eff e. (EventEmitter e)
-            => Event -> e -> Eff (event :: EventEff | eff) [Event]
+            => Event -> e -> Eff (event :: EventEff | eff) (Array Event)
   listeners = emitterHelper1 "listeners"
 
-  foreign import emit
-    "function emit(__dict) {\
-    \  return function(event) {\
-    \    return function(arg) {\
-    \      return function(emitter) {\
-    \        return function() {\
-    \          return emitter.emit(event, arg);\
-    \        }\
-    \      }\
-    \    }\
-    \  }\
-    \}" :: forall eff e arg. (EventEmitter e)
+  foreign import emit :: forall eff e arg. (EventEmitter e)
         => Event -> arg -> e -> Eff (event :: EventEff | eff) Boolean
